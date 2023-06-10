@@ -1,0 +1,3 @@
+C:/Users/kubah/CLionProjects/akwb4/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/kubah/CLionProjects/akwb4/cmake-build-debug/CMakeFiles/akwb4.dir
+C:/Users/kubah/CLionProjects/akwb4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
