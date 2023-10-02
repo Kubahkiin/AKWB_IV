@@ -6,8 +6,10 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 string instance = "test";
 
@@ -59,7 +61,8 @@ void delete_element(int key, vector < int > &v) {
     }
 }
 
-bool check_first_element(vector < int > &multi_a, vector < int > &not_used, vector < int > &restriction_map){
+vector < int > find_maxes(vector < int > &multi_a){
+    vector < int > maxes;
     int max = 0, nd_max = 0;
     for (int e: multi_a){
         if (e > max) {
@@ -67,9 +70,14 @@ bool check_first_element(vector < int > &multi_a, vector < int > &not_used, vect
             max = e;
         }
     }
-    //cout <<"\nMax: " << max << " 2nd_Max: " << nd_max;
+    maxes.push_back(max);
+    maxes.push_back(nd_max);
+
+    return maxes;
+}
+
+bool check_first_element(vector < int > &multi_a, vector < int > &not_used, vector < int > &restriction_map, int max, int nd_max){
     int first = max - nd_max;
-    //cout << "\n" << first;
     restriction_map.push_back(first);
 
 
@@ -79,20 +87,65 @@ bool check_first_element(vector < int > &multi_a, vector < int > &not_used, vect
     return find_element(first, multi_a);
 }
 
+bool can_add_element(vector < int > &not_used, vector <int> &restriction_map, int max) {
+    int checks = restriction_map.size() - 1;
+    int frag = restriction_map[restriction_map.size() - 1];
+    int sum = frag;
+    for(int i = 0; i < checks; i++){
+        sum += restriction_map[checks-1 - i];
 
 
-void seek(vector < int > &multi_a, vector < int > &not_used, vector <int> &restriction_map, int maxInd, int *found) {
-    if (restriction_map.size() == maxInd) {
+        if(find_element(sum, not_used)){
+            delete_element(sum, not_used);
+            if (not_used.size() == 2){
+                if (find_element(max-sum, not_used)){
+                    restriction_map.push_back(max-sum);
+                    return true;
+                }
+            }
+        }
+        else
+            return false;
+
+
+    }
+
+    if(find_element(max-sum, not_used)){
+        delete_element(max-sum, not_used);
+        return true;
+    }
+    else
+        return false;
+}
+
+void seek(vector < int > &not_used, vector <int> &restriction_map, int maxInd, int *found, int max) {
+    bool ok;
+    if (restriction_map.size() == maxInd + 1) {
         display_vector(restriction_map);
         *found = 1;
     }
     else for (int frag: not_used){
-        cout << "\t" << frag;
+        vector < int > not_used_new;
+        copy(not_used.begin(), not_used.end(), back_inserter(not_used_new));
+
+        restriction_map.push_back(frag);
+        delete_element(frag,not_used_new);
+
+        ok = can_add_element(not_used_new, restriction_map, max);
+
+
+        if(ok)
+        {
+            seek(not_used_new, restriction_map, maxInd, found, max);
+        }
+
+        restriction_map.pop_back();
 
         if (*found==1)
             break;
+
         }
 
 }
 
-#endif //AKWB4_MAP_FUNCTIONS_H
+#endif
